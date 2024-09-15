@@ -16,5 +16,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Start the server and save logs to output.log
-CMD ["sh", "-c", "node server.js > output.log 2>&1"]
+# Start the server and log to logs/output.log
+CMD ["sh", "-c", "mkdir -p logs && node server.js > logs/output.log 2>&1"]
