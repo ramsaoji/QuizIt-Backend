@@ -1,0 +1,28 @@
+// models/Category.js
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const slugify = require("slugify");
+
+const CategorySchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  quizzes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Quiz",
+    },
+  ],
+});
+
+module.exports = mongoose.model("Category", CategorySchema);
