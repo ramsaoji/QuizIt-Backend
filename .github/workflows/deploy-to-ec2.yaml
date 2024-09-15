@@ -16,9 +16,9 @@ jobs:
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
-        run: docker build -t quizappimage/quizit .
+        run: docker build -t quizappimage/quizit-backend .
       - name: Publish image to docker hub
-        run: docker push quizappimage/quizit:latest
+        run: docker push quizappimage/quizit-backend:latest
 
   deploy:
     needs: build
@@ -30,7 +30,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            docker pull quizappimage/quizit:latest
-            docker rm -f quizit-container || true
-            docker run -d -p 5000:5000 --name quizit-container quizappimage/quizit:latest
+            docker pull quizappimage/quizit-backend:latest
+            docker rm -f quizit-backend-container || true
+            docker run -d -p 5000:5000 --name quizit-backend-container quizappimage/quizit-backend:latest
           EOF
