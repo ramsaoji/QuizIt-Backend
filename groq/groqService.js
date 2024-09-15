@@ -106,7 +106,7 @@ exports.generateQuizWithGroq = async (prompt) => {
     });
 
     const quizData = response.choices[0].message.content;
-    console.log("Generated quiz data from groq ----", quizData);
+    console.log("Generated quiz data from groq ---", quizData);
     return quizData;
   } else {
     // Generate a generic response or error message from groq
@@ -138,7 +138,7 @@ exports.generateQuizWithGroq = async (prompt) => {
     });
 
     const genericResponse = response.choices[0].message.content;
-    console.log("Generated error response from groq ----", genericResponse);
+    console.log("Generated error response from groq ---", genericResponse);
     return genericResponse;
   }
 };
