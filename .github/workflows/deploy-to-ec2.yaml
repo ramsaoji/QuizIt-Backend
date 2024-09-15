@@ -28,14 +28,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Deploy to EC2
-          run: |
-            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-              docker pull anontech27/quizit-backend:latest
-              docker rm -f quizit-backend-container || true
-              docker run -d -p 5000:5000 \
-                --name quizit-backend-container \
-                --env-file /home/ubuntu/quizit-backend/.env \
-                -v /home/ubuntu/quizit-backend/logs/output.log:/usr/src/app/output.log \
-                anontech27/quizit-backend:latest
-            EOF
-
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            docker pull anontech27/quizit-backend:latest
+            docker rm -f quizit-backend-container || true
+            docker run -d -p 5000:5000 \
+              --name quizit-backend-container \
+              --env-file /home/ubuntu/quizit-backend/.env \
+              -v /home/ubuntu/quizit-backend/logs/output.log:/usr/src/app/output.log \
+              anontech27/quizit-backend:latest
+          EOF
