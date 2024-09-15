@@ -20,50 +20,39 @@ exports.generateQuizWithGroq = async (prompt) => {
         
           **Categorization Rules:**     
           1. Use primary technologies or frameworks as main categories.
-          2. For basic or fundamental topics of a language or technology, use the language/technology name as the category:
-            - "Python basics" → "Python"
-            - "JavaScript fundamentals" → "JavaScript"
-            - "Java core concepts" → "Java"
-          3. Group related libraries, tools, and concepts under their parent technology or framework:
-            - React ecosystem (Redux, React Router, etc.) → "React"
-            - Angular ecosystem → "Angular"
-            - Vue.js ecosystem → "Vue.js"
-            - Flask, Django, FastAPI, etc. → "Python"
-            - Spring, Hibernate, etc. → "Java"
-          4. Programming languages are distinct top-level categories (e.g., "Python", "Java", "C++", "JavaScript").
-          5. Web development topics use "Web Development" unless they fit under a specific language or framework category.
-          6. Cloud services use their primary provider as category (e.g., "AWS", "Azure", "Google Cloud").
-          7. Database technologies use "Databases" unless a quiz is entirely about a specific database system.
-          8. ORM and ODM tools categorize under their parent language or "Databases".
-          9. DevOps tools and practices use "DevOps" unless an entire quiz focuses on a specific tool.
-          10. Version control concepts categorize under "Version Control".
-          11. API-related topics use "API Development" unless about a specific protocol or framework.
-          12. Security topics use "Cybersecurity" unless about a specific concept or framework.
-          13. Machine Learning and AI topics use "Artificial Intelligence" unless an entire quiz is about a specific subfield.
+          2. For basic or fundamental topics of a language or technology, use the language/technology name as the category.
+          3. Group related libraries, tools, and concepts under their parent technology or framework.
+          4. Programming languages are distinct top-level categories.
+          5. Web development topics use \\"Web Development\\" unless they fit under a specific language or framework category.
+          6. Cloud services use their primary provider as category.
+          7. Database technologies use \\"Databases\\" unless a quiz is entirely about a specific database system.
+          8. ORM and ODM tools categorize under their parent language or \\"Databases\\".
+          9. DevOps tools and practices use \\"DevOps\\" unless an entire quiz focuses on a specific tool.
+          10. Version control concepts categorize under \\"Version Control\\".
+          11. API-related topics use \\"API Development\\" unless about a specific protocol or framework.
+          12. Security topics use \\"Cybersecurity\\" unless about a specific concept or framework.
+          13. Machine Learning and AI topics use \\"Artificial Intelligence\\" unless an entire quiz is about a specific subfield.
           14. For topics spanning multiple areas, use the most relevant parent technology or concept as the category.
         
           **JSON Formatting Rules (Strict Character Escaping):**
           1. Use double quotes for all strings, including keys.
-          2. Escape all nested quotes using a backslash: \\"
-          3. Escape all backslashes with a double backslash: \\\\
+          2. Escape all nested quotes using a backslash: \\\\\"
+          3. Escape all backslashes with a double backslash: \\\\\\\\
           4. Do not include unescaped special characters like newlines, tabs, or Unicode symbols in any part of the JSON structure.
-          5. Avoid unbalanced or unclosed braces, brackets, or quotes.
-          6. Ensure the JSON string is valid and can be parsed without errors.
-          7. Remove any invisible or non-UTF-8 characters that may cause JSON parsing issues.
+          5. Ensure the JSON string is valid and can be parsed without errors.
+          6. Remove any invisible or non-UTF-8 characters that may cause JSON parsing issues.
         
           **Slug Handling (Strict Slug Format):**
           1. Slugs must only contain lowercase letters, numbers, and hyphens (-).
           2. Spaces should be replaced by hyphens.
-          3. Special characters like '#', '+', '.', etc. must be replaced or removed:
-            - "C#" → "csharp"
-            - "C++" → "cplusplus"
-            - "ASP.NET Core" → "aspnet-core"
-          4. Ensure no slugs contain any special characters, spaces, or uppercase letters.
-          5. If special characters appear in slugs, convert or remove them appropriately to avoid parsing issues.
+          3. Special characters must be replaced or removed:
+            - \\"C#\\" → \\"csharp\\"
+            - \\"C++\\" → \\"cplusplus\\"
+            - \\"ASP.NET Core\\" → \\"aspnet-core\\"
         
           **Special Handling:**
-          - If special characters appear in quiz content (like 'WORKDIR', 'EXPOSE', etc.), make sure they are enclosed properly in double quotes and escaped when necessary.
-          - Verify and strictly enforce that no character causes invalid JSON or parsing errors.
+          - Enclose all special characters or keywords (like 'WORKDIR', 'EXPOSE') in double quotes and escape them properly.
+          - Verify that no character causes invalid JSON or parsing errors.
           - Ensure all slugs follow the specified format and are free of any disallowed characters.
         
           **Quiz Structure:**
@@ -73,32 +62,31 @@ exports.generateQuizWithGroq = async (prompt) => {
         
           **JSON Format for Valid Quizzes:**
           {
-            "category": {
-              "name": "Category name",
-              "description": "Brief category description (1-2 sentences)",
-              "categorySlug": "category-slug"
+            \\"category\\": {
+              \\"name\\": \\"Category name\\",
+              \\"description\\": \\"Brief category description (1-2 sentences)\\",
+              \\"categorySlug\\": \\"category-slug\\"
             },
-            "quiz": {
-              "title": "Quiz title",
-              "description": "Quiz description"
+            \\"quiz\\": {
+              \\"title\\": \\"Quiz title\\",
+              \\"description\\": \\"Quiz description\\"
             },
-            "questions": [
+            \\"questions\\": [
               {
-                "question": "Question text",
-                "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-                "answer": "Correct single option only"
-              },
-              // 4 more questions
+                \\"question\\": \\"Question text\\",
+                \\"options\\": [\\"Option 1\\", \\"Option 2\\", \\"Option 3\\", \\"Option 4\\"],
+                \\"answer\\": \\"Correct single option only\\"
+              }
             ]
           }
         
           **JSON Format for Invalid Prompts:**
           {
-            "error": "Invalid Prompt",
-            "message": "Brief explanation of why the prompt is invalid or unclear"
+            \\"error\\": \\"Invalid Prompt\\",
+            \\"message\\": \\"Brief explanation of why the prompt is invalid or unclear\\"
           }
         
-          Ensure that all responses strictly follow these guidelines and that no invalid characters or improperly escaped characters exist in the generated JSON.`,
+          Ensure that all responses strictly follow these guidelines. If you cannot generate a valid quiz or encounter any issues, return the error JSON format instead of an incomplete or invalid quiz structure.`,
         },
         {
           role: "user",
