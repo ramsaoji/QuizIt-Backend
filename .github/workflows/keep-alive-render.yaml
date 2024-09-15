@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render Server
-        run: curl https://quizit-master-1.onrender.com/graphql
+        run: curl https://quizit-backend.onrender.com/graphql
