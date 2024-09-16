@@ -26,7 +26,11 @@ const resolvers = {
       if (!user) {
         throw new Error("Authentication required");
       }
-      const category = await Category.findOne({ slug, user: user.uid });
+      // Fetch the user document from MongoDB
+      const userDoc = await User.findOne({ uid: user.uid });
+
+      const category = await Category.findOne({ slug, user: userDoc._id });
+
       if (!category) {
         throw new Error("Category not found");
       }
