@@ -6,6 +6,7 @@ const cors = require("cors");
 const typeDefs = require("./graphql/schema");
 const resolvers = require("./graphql/resolvers");
 const quizRoutes = require("./routes/quizRoutes");
+const verifyToken = require("./middleware/verifyToken");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,8 +45,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Use the quiz routes
-app.use("/api", quizRoutes);
+// Apply token verification middleware
+app.use(verifyToken);
+
+// Use the verifyToken middleware for the API routes
+app.use("/api", verifyToken, quizRoutes); // Apply verifyToken before quizRoutes
 
 // Initialize ApolloServer with the schema, resolvers, and introspection setting
 const server = new ApolloServer({
@@ -53,6 +57,9 @@ const server = new ApolloServer({
   resolvers,
   introspection: process.env.NODE_ENV !== "production",
   playground: process.env.NODE_ENV !== "production",
+  context: ({ req }) => ({
+    user: req.user, // Pass authenticated user to context
+  }),
 });
 
 const startServer = async () => {

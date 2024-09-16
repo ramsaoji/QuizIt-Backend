@@ -5,16 +5,7 @@ const {
 } = require("@apollo/client/core");
 const fetch = require("node-fetch");
 const { generateQuizWithGroq } = require("../groq/groqService");
-// const { formatQuizData } = require("../utils/utils");
-const {
-  CREATE_CATEGORY,
-  CREATE_QUIZ,
-  CREATE_QUESTION,
-  UPDATE_QUIZ_WITH_QUESTIONS,
-  GET_CATEGORY_BY_SLUG,
-  GET_QUIZ_BY_SLUG,
-} = require("../graphql/queries");
-const slugify = require("slugify");
+const { GET_CATEGORY_BY_SLUG } = require("../graphql/queries");
 
 const client = new ApolloClient({
   link: new HttpLink({
@@ -43,25 +34,15 @@ const checkCategoryExists = async (categorySlug) => {
   }
 };
 
-// const checkQuizExists = async (quizTitle) => {
-//   const quizSlug = slugify(quizTitle);
-//   console.log(`###-Init check quiz exists for quiz slug (${quizSlug})-###`);
-
-//   try {
-//     const result = await client.query({
-//       query: GET_QUIZ_BY_SLUG,
-//       variables: { slug: quizSlug },
-//     });
-//     return result.data.getQuizBySlug;
-//   } catch (error) {
-//     console.error(`Checked for existing quiz - ${error.message}`);
-//     return null;
-//   }
-// };
-
 exports.generateQuiz = async (req, res) => {
   try {
+    // Access the authenticated user
+    const user = req.user;
     const { prompt } = req.body;
+
+    if (!user) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
     console.log("Received prompt ----", prompt);
 
@@ -72,7 +53,7 @@ exports.generateQuiz = async (req, res) => {
     // Check if parsedData is loaded before running the validation
     if (!parsedData) {
       console.error("parsedData is not yet loaded");
-      return; // Don't proceed if the data is not ready
+      return res.status(500).json({ error: "Failed to load quiz data" });
     }
 
     console.log("Parsed Data:", JSON.stringify(parsedData, null, 2)); // Check full data structure
@@ -109,11 +90,6 @@ exports.generateQuiz = async (req, res) => {
       if (!q.options.includes(q.answer)) {
         throw new Error(`Answer not in options for question at index ${index}`);
       }
-      // if (!["easy", "medium", "hard"].includes(q.difficultyLevel)) {
-      //   throw new Error(
-      //     `Invalid difficulty level for question at index ${index}`
-      //   );
-      // }
     });
 
     const categorySlug = parsedData?.category?.categorySlug;
