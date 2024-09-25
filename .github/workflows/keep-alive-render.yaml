@@ -1,13 +1,13 @@
-# name: Keep Render Server Awake
+name: Keep Render Server Awake
 
-# on:
-#   workflow_dispatch:
-#   schedule:
-#     - cron: "*/12 * * * *"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/12 * * * *"
 
-# jobs:
-#   ping:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Ping Render Server
-#         run: curl https://quizit-backend.onrender.com/graphql
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Server
+        run: curl https://quizit-backend.onrender.com/graphql
