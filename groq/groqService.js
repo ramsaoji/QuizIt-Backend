@@ -66,11 +66,12 @@ exports.generateQuizWithGroq = async (prompt) => {
         
           **JSON Formatting Rules (Strict Character Escaping):**
           1. Use double quotes for all strings, including keys.
-          2. Escape all nested quotes using a backslash: \"
-          3. Escape all backslashes with a double backslash: \\
-          4. Do not include unescaped special characters like newlines, tabs, or Unicode symbols in any part of the JSON structure.
-          5. Ensure the JSON string is valid and can be parsed without errors.
-          6. Remove any invisible or non-UTF-8 characters that may cause JSON parsing issues.
+          2. HTML tags should not be properly escaped.
+          3. Escape all nested quotes using a backslash: \"
+          4. Escape all backslashes with a double backslash: \\
+          5. Do not include unescaped special characters like newlines, tabs, or Unicode symbols in any part of the JSON structure.
+          6. Ensure the JSON string is valid and can be parsed without errors.
+          7. Remove any invisible or non-UTF-8 characters that may cause JSON parsing issues.
         
           **Slug Handling (Strict Slug Format):**
           1. Slugs must only contain lowercase letters, numbers, and hyphens (-).
