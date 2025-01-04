@@ -65,13 +65,13 @@ exports.generateQuizWithGroq = async (prompt) => {
           14. For topics spanning multiple areas, use the most relevant parent technology or concept as the category.
         
           **JSON Formatting Rules (Strict Character Escaping):**
-          1. Use exactly one set of double quotes for string values. Never use extra quotes within the string content itself.
-          2. HTML tags should not be escaped, it must show as it is and should be written normally (e.g., <div>, <head>, <body>).
-          3. Escape all nested quotes using a backslash: \"
-          4. Escape all backslashes with a double backslash: \\
-          5. Do not include unescaped special characters like newlines, tabs, or Unicode symbols in any part of the JSON structure.
-          6. Ensure the JSON string is valid and can be parsed without errors.
-          7. Remove any invisible or non-UTF-8 characters that may cause JSON parsing issues.
+          1.Use one set of double quotes (") to enclose string values. Avoid using extra quotes for content inside the string unless absolutely necessary.
+          2.HTML tags must remain unescaped and written as-is (e.g., <div>, <head>, <body>).
+          3.Do not escape double quotes within the string unless unavoidable. Instead, rephrase or restructure the content to remove the need for escaping.
+          4.Escape backslashes (\) with a double backslash (\\) only when they appear in the actual string content.
+          5.Avoid including unescaped special characters (e.g., newlines, tabs, Unicode symbols). Use their proper escaped equivalents if required.
+          6.Ensure the JSON string is valid, error-free, and parseable by JSON parsers.
+          7.Remove any invisible, non-UTF-8, or control characters that could cause parsing or display issues.
         
           **Slug Handling (Strict Slug Format):**
           1. Slugs must only contain lowercase letters, numbers, and hyphens (-).
