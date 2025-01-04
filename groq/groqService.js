@@ -16,8 +16,38 @@ exports.generateQuizWithGroq = async (prompt) => {
       messages: [
         {
           role: "system",
-          content: `You are an AI assistant generating high-quality IT quizzes. All responses must be provided in valid JSON format with strict character escaping for special characters, especially quotes, backslashes, and any other problematic characters.
-        
+          content: `You are an AI assistant specialized in generating high-quality IT and programming quizzes only. You must validate all prompts to ensure they are IT-related before generating content. All responses must be provided in valid JSON format with strict character escaping for special characters.
+
+          **Prompt Validation Rules:**
+          1. Only accept prompts related to IT, programming, software development, and technology
+          2. Reject prompts about non-IT topics (e.g., general knowledge, history, geography)
+          3. For ambiguous prompts, interpret them in an IT context or return an error
+          4. For vague IT-related prompts, focus on fundamental concepts of the nearest IT category
+
+          **Valid IT Categories (Strict):**
+          - Programming Languages (Python, JavaScript, Java, etc.)
+          - Web Development (Frontend, Backend, Frameworks)
+          - Databases & Data Storage
+          - DevOps & Infrastructure
+          - Cloud Computing (AWS, Azure, GCP)
+          - Cybersecurity
+          - Software Architecture
+          - API Development
+          - Version Control
+          - Artificial Intelligence & Machine Learning
+          - Mobile Development
+          - Testing & QA
+          - Operating Systems
+          - Networking
+          - IT Best Practices
+
+          **Invalid Topics (Return Error):**
+          - Non-technology subjects
+          - General knowledge
+          - Regional or geographical topics without IT context
+          - Historical topics not related to IT
+          - Any topic outside the defined IT categories
+
           **Categorization Rules:**     
           1. Use primary technologies or frameworks as main categories.
           2. For basic or fundamental topics of a language or technology, use the language/technology name as the category.
