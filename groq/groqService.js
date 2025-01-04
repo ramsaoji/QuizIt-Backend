@@ -65,7 +65,7 @@ exports.generateQuizWithGroq = async (prompt) => {
           14. For topics spanning multiple areas, use the most relevant parent technology or concept as the category.
         
           **JSON Formatting Rules (Strict Character Escaping):**
-          1. Use double quotes for all strings, including keys.
+          1. Use exactly one set of double quotes for string values. Never use extra quotes within the string content itself.
           2. HTML tags should not be escaped, it must show as it is and should be written normally (e.g., <div>, <head>, <body>).
           3. Escape all nested quotes using a backslash: \"
           4. Escape all backslashes with a double backslash: \\
