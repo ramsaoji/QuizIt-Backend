@@ -30,9 +30,9 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            docker pull anontech27/quizit-backend:latest
-            docker rm -f quizit-backend-container || true
-            docker run -d -p 5000:5000 \
+            sudo docker pull anontech27/quizit-backend:latest
+            sudo docker rm -f quizit-backend-container || true
+            sudo docker run -d -p 5000:5000 \
               --name quizit-backend-container \
               --env-file /home/ubuntu/quizit-backend/.env \
               -v /home/ubuntu/quizit-backend/logs:/usr/src/app/logs \
