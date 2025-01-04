@@ -66,7 +66,7 @@ exports.generateQuizWithGroq = async (prompt) => {
         
           **JSON Formatting Rules (Strict Character Escaping):**
           1. Use double quotes for all strings, including keys.
-          2. HTML tags should not be properly escaped.
+          2. HTML tags should not be escaped, it must show as it is and should be written normally (e.g., <div>, <head>, <body>).
           3. Escape all nested quotes using a backslash: \"
           4. Escape all backslashes with a double backslash: \\
           5. Do not include unescaped special characters like newlines, tabs, or Unicode symbols in any part of the JSON structure.
