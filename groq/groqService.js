@@ -94,7 +94,7 @@ exports.generateQuizWithGroq = async (prompt) => {
           **JSON Format for Valid Quizzes:**
           {
             \"category\": {
-              \"name\": \"Category name - primary technologies or frameworks as main category\",
+              \"name\": \"Category name\",
               \"description\": \"Brief category description (1-2 sentences)\",
               \"categorySlug\": \"category-slug\"
             },
