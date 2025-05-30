@@ -120,6 +120,12 @@ const typeDefs = gql`
     isCorrect: Boolean!
   }
 
+  type DeleteResponse {
+    success: Boolean!
+    message: String
+    deletedId: ID
+  }
+
   type Query {
     # Fetch categories and quizzes for the logged-in user
     getAllCategories: [Category] # User-specific categories
@@ -156,6 +162,10 @@ const typeDefs = gql`
 
     # Firebase Auth: Login and register mutation placeholders if needed
     registerUser(email: String!, displayName: String!, uid: String!): User
+
+    deleteCategory(categoryId: ID!): DeleteResponse!
+
+    deleteQuiz(quizId: ID!): DeleteResponse!
   }
 `;
 

@@ -19,7 +19,7 @@ const resolvers = {
         throw new Error("User not found");
       }
 
-      // Find categories using the user’s ObjectId
+      // Find categories using the user's ObjectId
       return await Category.find({ user: userDoc._id }).populate("quizzes");
     },
     getCategoryBySlug: async (_, { slug }, { user }) => {
@@ -277,6 +277,164 @@ const resolvers = {
       } catch (error) {
         console.error("Failed to register user:", error.message);
         throw new Error(`Failed to register user: ${error.message}`);
+      }
+    },
+    deleteCategory: async (_, { categoryId }, { user }) => {
+      try {
+        if (!user) {
+          throw new Error("Authentication required");
+        }
+
+        // Find the user document
+        const userDoc = await User.findOne({ uid: user.uid });
+        if (!userDoc) {
+          throw new Error("User not found");
+        }
+
+        console.log(
+          `[DELETE CATEGORY] Starting deletion process for category ID: ${categoryId}`
+        );
+        console.log(`[DELETE CATEGORY] User: ${userDoc.email}`);
+
+        // Find the category and ensure it belongs to the user
+        const category = await Category.findOne({
+          _id: categoryId,
+          user: userDoc._id,
+        });
+
+        if (!category) {
+          console.log(
+            `[DELETE CATEGORY] Category not found or unauthorized: ${categoryId}`
+          );
+          throw new Error("Category not found or unauthorized");
+        }
+
+        console.log(
+          `[DELETE CATEGORY] Found category: ${category.name} (${category.slug})`
+        );
+
+        // Find all quizzes in this category
+        const quizzes = await Quiz.find({ category: categoryId });
+        console.log(
+          `[DELETE CATEGORY] Found ${quizzes.length} quizzes to delete`
+        );
+
+        // Delete all questions from all quizzes in this category
+        for (const quiz of quizzes) {
+          const deletedQuestions = await Question.deleteMany({
+            quiz: quiz._id,
+          });
+          console.log(
+            `[DELETE CATEGORY] Deleted ${deletedQuestions.deletedCount} questions from quiz: ${quiz.title}`
+          );
+        }
+
+        // Delete all quizzes in this category
+        const deletedQuizzes = await Quiz.deleteMany({ category: categoryId });
+        console.log(
+          `[DELETE CATEGORY] Deleted ${deletedQuizzes.deletedCount} quizzes`
+        );
+
+        // Remove category reference from user's categories
+        await User.findByIdAndUpdate(userDoc._id, {
+          $pull: { categories: categoryId },
+        });
+        console.log(
+          `[DELETE CATEGORY] Removed category reference from user: ${userDoc.email}`
+        );
+
+        // Delete the category
+        await Category.findByIdAndDelete(categoryId);
+        console.log(
+          `[DELETE CATEGORY] Successfully deleted category: ${category.name}`
+        );
+
+        return {
+          success: true,
+          message: "Category and all associated quizzes deleted successfully",
+          deletedId: categoryId,
+        };
+      } catch (error) {
+        console.error("[DELETE CATEGORY] Error:", error);
+        return {
+          success: false,
+          message: error.message,
+          deletedId: null,
+        };
+      }
+    },
+    deleteQuiz: async (_, { quizId }, { user }) => {
+      try {
+        if (!user) {
+          throw new Error("Authentication required");
+        }
+
+        // Find the user document
+        const userDoc = await User.findOne({ uid: user.uid });
+        if (!userDoc) {
+          throw new Error("User not found");
+        }
+
+        console.log(
+          `[DELETE QUIZ] Starting deletion process for quiz ID: ${quizId}`
+        );
+        console.log(`[DELETE QUIZ] User: ${userDoc.email}`);
+
+        // Find the quiz and ensure it belongs to the user
+        const quiz = await Quiz.findOne({
+          _id: quizId,
+          user: userDoc._id,
+        }).populate("category");
+
+        if (!quiz) {
+          console.log(
+            `[DELETE QUIZ] Quiz not found or unauthorized: ${quizId}`
+          );
+          throw new Error("Quiz not found or unauthorized");
+        }
+
+        console.log(
+          `[DELETE QUIZ] Found quiz: ${quiz.title} in category: ${quiz.category.name}`
+        );
+
+        // Delete all questions associated with this quiz
+        const deletedQuestions = await Question.deleteMany({ quiz: quizId });
+        console.log(
+          `[DELETE QUIZ] Deleted ${deletedQuestions.deletedCount} questions`
+        );
+
+        // Remove quiz reference from category
+        await Category.findByIdAndUpdate(quiz.category._id, {
+          $pull: { quizzes: quizId },
+        });
+        console.log(
+          `[DELETE QUIZ] Removed quiz reference from category: ${quiz.category.name}`
+        );
+
+        // Remove quiz reference from user's quizzes
+        await User.findByIdAndUpdate(userDoc._id, {
+          $pull: { quizzes: quizId },
+        });
+        console.log(
+          `[DELETE QUIZ] Removed quiz reference from user: ${userDoc.email}`
+        );
+
+        // Delete the quiz
+        await Quiz.findByIdAndDelete(quizId);
+        console.log(`[DELETE QUIZ] Successfully deleted quiz: ${quiz.title}`);
+
+        return {
+          success: true,
+          message: "Quiz and all associated questions deleted successfully",
+          deletedId: quizId,
+        };
+      } catch (error) {
+        console.error("[DELETE QUIZ] Error:", error);
+        return {
+          success: false,
+          message: error.message,
+          deletedId: null,
+        };
       }
     },
   },
