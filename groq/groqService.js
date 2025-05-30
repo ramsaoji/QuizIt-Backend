@@ -1,4 +1,5 @@
 const Groq = require("groq-sdk");
+const { determineCategory } = require("../utils/categoryMapper");
 
 const groqClient = new Groq();
 
@@ -16,115 +17,77 @@ exports.generateQuizWithGroq = async (prompt) => {
       messages: [
         {
           role: "system",
-          content: `You are an AI assistant specialized in generating high-quality IT and programming quizzes only. You must validate all prompts to ensure they are IT-related before generating content. All responses must be provided in valid JSON format with strict character escaping for special characters.
+          content: `You are an AI assistant specialized in generating high-quality IT and programming quizzes only. You must validate all prompts to ensure they are IT-related before generating content. All responses must be provided in valid JSON format.
 
-          **Prompt Validation Rules:**
-          1. Only accept prompts related to IT, programming, software development, and technology
-          2. Reject prompts about non-IT topics (e.g., general knowledge, history, geography)
-          3. For ambiguous prompts, interpret them in an IT context or return an error
-          4. For vague IT-related prompts, focus on fundamental concepts of the nearest IT category
+          **Category Assignment Rules:**
+          1. ALWAYS use the most specific, relevant technology or concept as the main category
+          2. For programming languages and frameworks:
+             - Use the core language name as category (e.g., "JavaScript", "Python", "Java")
+             - Include ALL related features, frameworks, and concepts under that language
+             - Examples:
+               * "JavaScript" category includes: ES6, Node.js, React, Angular, TypeScript, closures, promises
+               * "Python" category includes: Django, Flask, NumPy, Pandas
+               * "Java" category includes: Spring, Hibernate, JPA, Maven
+          3. For other technologies:
+             - Use the primary technology name (e.g., "MongoDB", "Docker", "Git")
+             - Be consistent with casing and naming
+          4. For general concepts:
+             - Use broad category only if topic doesn't fit under specific technology
+             - Examples: "Web Development", "DevOps", "Databases", "Security"
 
-          **Valid IT Categories (Strict):**
-          - Programming Languages (Python, JavaScript, Java, etc.)
-          - Web Development (Frontend, Backend, Frameworks)
-          - Databases & Data Storage
-          - DevOps & Infrastructure
-          - Cloud Computing (AWS, Azure, GCP)
-          - Cybersecurity
-          - Software Architecture
-          - API Development
-          - Version Control
-          - Artificial Intelligence & Machine Learning
-          - Mobile Development
-          - Testing & QA
-          - Operating Systems
-          - Networking
-          - IT Best Practices
+          **Category Structure in Response:**
+          {
+            "category": {
+              "name": "Primary technology or concept name (e.g., JavaScript, Python, MongoDB)",
+              "slug": "lowercase-hyphenated-name (e.g., javascript, python, mongodb)",
+              "description": "Brief description of the category scope"
+            }
+          }
 
-          **Invalid Topics (Return Error):**
-          - Non-technology subjects
-          - General knowledge
-          - Regional or geographical topics without IT context
-          - Historical topics not related to IT
-          - Any topic outside the defined IT categories
-
-          **Categorization Rules:**     
-          1. Use primary technologies or frameworks as main categories.
-          2. For basic or fundamental topics of a language or technology, use the language/technology name as the category.
-          3. Group related libraries, tools, and concepts under their parent technology or framework.
-          4. Programming languages are distinct top-level categories.
-          5. Web development topics use \"Web Development\" unless they fit under a specific language or framework category.
-          6. Cloud services use their primary provider as category.
-          7. Database technologies use \"Databases\" unless a quiz is entirely about a specific database system.
-          8. ORM and ODM tools categorize under their parent language or \"Databases\".
-          9. DevOps tools and practices use \"DevOps\" unless an entire quiz focuses on a specific tool.
-          10. Version control concepts categorize under \"Version Control\".
-          11. API-related topics use \"API Development\" unless about a specific protocol or framework.
-          12. Security topics use \"Cybersecurity\" unless about a specific concept or framework.
-          13. Machine Learning and AI topics use \"Artificial Intelligence\" unless an entire quiz is about a specific subfield.
-          14. For topics spanning multiple areas, use the most relevant parent technology or concept as the category.
-        
-          **JSON Formatting Rules (Strict Character Escaping):**
-          1.Use one set of double quotes (") to enclose string values. Avoid using extra quotes for content inside the string unless absolutely necessary.
-          2.HTML tags must remain unescaped and written as-is (e.g., <div>, <head>, <body>).
-          3.Do not escape double quotes within the string unless unavoidable. Instead, rephrase or restructure the content to remove the need for escaping.
-          4.Escape backslashes (\) with a double backslash (\\) only when they appear in the actual string content.
-          5.Avoid including unescaped special characters (e.g., newlines, tabs, Unicode symbols). Use their proper escaped equivalents if required.
-          6.Ensure the JSON string is valid, error-free, and parseable by JSON parsers.
-          7.Remove any invisible, non-UTF-8, or control characters that could cause parsing or display issues.
-        
-          **Slug Handling (Strict Slug Format):**
-          1. Slugs must only contain lowercase letters, numbers, and hyphens (-).
-          2. Spaces should be replaced by hyphens.
-          3. Special characters must be replaced or removed:
-            - \"C#\" → \"csharp\"
-            - \"C++\" → \"cplusplus\"
-            - \"ASP.NET Core\" → \"aspnet-core\"
-        
-          **Special Handling:**
-          - Enclose all special characters or keywords (like 'WORKDIR', 'EXPOSE') in double quotes and escape them properly.
-          - Verify that no character causes invalid JSON or parsing errors.
-          - Ensure all slugs follow the specified format and are free of any disallowed characters.
-        
           **Quiz Structure:**
           - Title: 2-4 words, specific to content
           - Description: 6-10 words summarizing focus and difficulty level
           - 5 questions: varying difficulty (easy, medium, hard), clear, 4 options each
         
-          **JSON Format for Valid Quizzes:**
+          **Complete Response Format:**
           {
-            \"category\": {
-              \"name\": \"Category name\",
-              \"description\": \"Brief category description (1-2 sentences)\",
-              \"categorySlug\": \"category-slug\"
+            "category": {
+              "name": "Category name",
+              "slug": "category-slug",
+              "description": "Category description"
             },
-            \"quiz\": {
-              \"title\": \"Quiz title\",
-              \"description\": \"Quiz description\"
+            "quiz": {
+              "title": "Quiz title",
+              "description": "Quiz description"
             },
-            \"questions\": [
+            "questions": [
               {
-                \"question\": \"Question text\",
-                \"options\": [\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\"],
-                \"answer\": \"Correct single option only\"
+                "question": "Question text",
+                "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                "answer": "Correct single option only"
               }
             ]
           }
         
-          **JSON Format for Invalid Prompts:**
+          **Error Response Format:**
           {
-            \"error\": \"Invalid Prompt\",
-            \"message\": \"Brief explanation of why the prompt is invalid or unclear\"
+            "error": "Invalid Prompt",
+            "message": "Brief explanation of why the prompt is invalid or unclear"
           }
         
-          Ensure that all responses strictly follow these guidelines. If you cannot generate a valid quiz or encounter any issues, return the error JSON format instead of an incomplete or invalid quiz structure.`,
+          **Important Notes:**
+          1. ALWAYS categorize related topics under their primary technology
+          2. BE CONSISTENT with category names across similar topics
+          3. USE SPECIFIC technology names instead of general categories when possible
+          4. MAINTAIN the same category for related concepts (e.g., all JavaScript concepts under JavaScript)
+          5. SLUGIFY category names: lowercase, hyphens for spaces, remove special characters`,
         },
         {
           role: "user",
           content: prompt,
         },
       ],
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.0,
       max_tokens: 5000,
       frequency_penalty: 0.0,
@@ -133,8 +96,22 @@ exports.generateQuizWithGroq = async (prompt) => {
     });
 
     const quizData = response.choices[0].message.content;
-    console.log("Generated quiz data from groq ---", quizData);
-    return quizData;
+    const parsedQuizData = JSON.parse(quizData);
+
+    // If it's a valid quiz (not an error response), add the category
+    if (!parsedQuizData.error) {
+      const category = determineCategory(
+        parsedQuizData.quiz.title,
+        parsedQuizData.quiz.description
+      );
+      parsedQuizData.category = category;
+    }
+
+    console.log(
+      "Generated quiz data from groq ---",
+      JSON.stringify(parsedQuizData)
+    );
+    return JSON.stringify(parsedQuizData);
   } else {
     // Generate a generic response or error message from groq
     const response = await groqClient.chat.completions.create({
@@ -156,7 +133,7 @@ exports.generateQuizWithGroq = async (prompt) => {
           content: prompt,
         },
       ],
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.5,
       max_tokens: 1500,
       frequency_penalty: 0.0,
