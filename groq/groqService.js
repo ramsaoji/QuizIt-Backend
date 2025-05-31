@@ -97,11 +97,45 @@ async function determineCategoryDynamically(prompt) {
 exports.generateQuizWithGroq = async (prompt) => {
   try {
     // Determine if the prompt is suitable for quiz generation
+    const topicValidationResponse = await groqClient.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert at identifying IT and programming related topics. Your task is to determine if the given prompt is related to IT, programming, software development, or technology.
+
+Return ONLY a JSON object in this format:
+{
+  "isITRelated": boolean,
+  "reason": "Brief explanation of why the topic is or isn't IT-related",
+  "suggestedTopic": "If not IT-related, suggest an IT topic that might be similar or relevant"
+}`,
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.1,
+      max_tokens: 150,
+      response_format: { type: "json_object" },
+    });
+
+    const topicValidation = JSON.parse(
+      topicValidationResponse.choices[0].message.content
+    );
     const isQuizPrompt =
-      prompt.includes("question") ||
-      (prompt.length > 3 &&
-        /^[\s\S]+$/.test(prompt) && // Matches any character including symbols
-        prompt.trim().split(/\s+/).length > 1);
+      topicValidation.isITRelated &&
+      prompt.length > 3 &&
+      /^[\s\S]+$/.test(prompt) && // Matches any character including symbols
+      prompt.trim().split(/\s+/).length > 1;
+
+    if (!topicValidation.isITRelated) {
+      return JSON.stringify({
+        error: "Invalid Prompt",
+        message: topicValidation.reason,
+      });
+    }
 
     if (isQuizPrompt) {
       console.log("Generating quiz for prompt:", prompt);
@@ -251,41 +285,6 @@ exports.generateQuizWithGroq = async (prompt) => {
       console.log("Validation passed, returning quiz data");
       return JSON.stringify(parsedData);
     }
-
-    // Generate a generic response or error message from groq
-    console.log("Generating generic response for non-quiz prompt");
-    const response = await groqClient.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI assistant providing responses based on the given prompt. If the prompt is not about generating IT quizzes, provide an appropriate response or an error message. Ensure clarity and relevance in your response.
-        
-          **Error Response Format:**
-          {
-            "error": "Invalid Prompt",
-            "message": "Brief explanation of why the prompt is invalid or unclear"
-          }
-          `,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.5,
-      max_tokens: 1500,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-      response_format: { type: "json_object" },
-    });
-
-    const genericResponse = response.choices[0].message.content;
-
-    // Parse and stringify to ensure valid JSON
-    const parsedGenericResponse = JSON.parse(genericResponse);
-    console.log("Generated generic response:", parsedGenericResponse);
-    return JSON.stringify(parsedGenericResponse);
   } catch (error) {
     console.error("Error in generateQuizWithGroq:", error);
     return JSON.stringify({
