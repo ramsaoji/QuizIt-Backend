@@ -45,6 +45,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Service is healthy",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Apply token verification middleware
 app.use(verifyToken);
 
